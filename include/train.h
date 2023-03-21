@@ -45,6 +45,8 @@ private:
     /*train tread
     */
     std::thread m_trainThread;
+
+    static std::mutex m_coutMutex;
    
     
 public: 

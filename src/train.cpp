@@ -13,6 +13,8 @@
 
 using namespace std;
 
+
+std::mutex CTrain::m_coutMutex;
 /**************************************************************************
  * Constructor is called RailRoad object
  * 
@@ -54,14 +56,21 @@ void CTrain::RunTrain()
     auto it = m_shortPathSegList.begin(); 
     m_it = it;
 
-    cout << "Running train " << m_trainId << " path: ";
-    for(auto& a : m_shortPathSegList)
-        cout << a->GetTrackSegmentId() << " ";
-    cout << '\n';
+    {
+        std::lock_guard<std::mutex> guard(m_coutMutex);
+        cout << "Running train " << m_trainId << " path: ";
+    
+        for(auto& a : m_shortPathSegList)
+            cout << a->GetTrackSegmentId() << " ";
+        cout << endl;
+    }
 
     while(it != m_shortPathSegList.end())
     {
-        cout << "train: " << m_trainId << " at " << (*m_it)->GetTrackSegmentId() << endl;
+        {
+            std::lock_guard<std::mutex> guard(m_coutMutex);
+            cout << "train: " << m_trainId << " at " << (*m_it)->GetTrackSegmentId() << endl;
+        }
                   
         it++;
         if (it != m_shortPathSegList.end())
@@ -69,13 +78,18 @@ void CTrain::RunTrain()
             auto* ts = (*it);
             while(!ts->TryToTakeGreenSignal())
             {
-               cout << "train: " << m_trainId << " waiting on RED at " << ts->GetTrackSegmentId() << endl;
+                {
+                    std::lock_guard<std::mutex> guard(m_coutMutex);
+                    cout << "train: " << m_trainId << " waiting on RED for " << ts->GetTrackSegmentId() << endl;
+                }
                std::this_thread::sleep_for(10ms);  
             };
             (*m_it)->ReleaseSignal();
             m_it = it;
-            cout << "train: " << m_trainId << " at " << (*m_it)->GetTrackSegmentId() << endl;
-
+            {
+                std::lock_guard<std::mutex> guard(m_coutMutex);
+                cout << "train: " << m_trainId << " moving to " << (*m_it)->GetTrackSegmentId() << endl;
+            }
         }
         else
         {
@@ -85,8 +99,13 @@ void CTrain::RunTrain()
         // sleep here for a bit to give other trains a chance
         std::this_thread::sleep_for(10ms); 
     }
-    return;
-    
+
+    {
+        std::lock_guard<std::mutex> guard(m_coutMutex);
+        cout << "train: " << m_trainId << " arrived" << endl;
+    }
+
+    return;    
 }
 
 /**************************************************************************
