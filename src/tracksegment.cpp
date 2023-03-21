@@ -1,4 +1,4 @@
-/*--------------------------------------------------------------------------
+/* /*--------------------------------------------------------------------------
 * File name:     TrackSegment.cpp 
 * Description:   TrackSegment class implementation 
 *                
@@ -70,5 +70,3 @@ void CTrackSegnment::ReleaseSignal()
 {
     m_signal.ReleaseSignal();
 }
-
-

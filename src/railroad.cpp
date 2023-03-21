@@ -1,4 +1,4 @@
-/*--------------------------------------------------------------------------
+/* /* /*--------------------------------------------------------------------------
 * File name:     RailRoad.cpp 
 * Description:   RailRoad class implementation 
 *                RailRoad is represented by biderectional graph data 
@@ -88,5 +88,4 @@ void CRailRoad::AddConnection(int src, int dest)
 
         } 
  }
-
-
+  

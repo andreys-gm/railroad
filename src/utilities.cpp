@@ -1,4 +1,4 @@
-/*--------------------------------------------------------------------------
+/* /*--------------------------------------------------------------------------
  * File name:     Utilites.cpp
  * Description:   Utilities functions - different algorithms to
  *                calculate shortest path
@@ -335,11 +335,6 @@ void FindShortestPath(unordered_map<int, CTrackSegnment *> &adjlist, int s,
     cout << "Shortest path weight is : "
         << dist[dest] << " for src : " << s << " to dest : " << dest;
 }
-
-/*
-
-
-*/
 
 /**************************************************************************
  * Function name: Dijkstra_WeightedGraph

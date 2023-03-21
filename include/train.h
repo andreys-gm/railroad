@@ -1,4 +1,4 @@
-/*--------------------------------------------------------------------------
+/* /*--------------------------------------------------------------------------
 * Objectnane: Train.h                   
 *
 * Author: Tanya Shkinev                                                        
@@ -72,7 +72,7 @@ public:
     /* train start moving
     */
     void RunTrain();
-    
+
     /*create train thread
     */
     void StartEngine();
@@ -88,4 +88,4 @@ protected:
     };
 
 };
-#endif // __TRAIN_H__
+#endif // __TRAIN_H__ */

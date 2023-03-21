@@ -1,4 +1,4 @@
-/*--------------------------------------------------------------------------
+/* /*--------------------------------------------------------------------------
 * File name:     TrainCtrlSim.cpp 
 * Description:   Train control simulation implementation 
 *                The application builds rail road model defined 
@@ -69,3 +69,4 @@ int main(int argc, char* argv[])
     }
     return 0;
 }
+
