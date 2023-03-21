@@ -35,13 +35,15 @@ CRailRoad::~CRailRoad()
         delete m_trainsList[trainIdx];
      for (int trackSegmentIdx = 0; trackSegmentIdx < m_trackSegmentsMap.size(); trackSegmentIdx++)
         delete m_trackSegmentsMap[trackSegmentIdx];
+     m_trackSegmentsMap.clear();
+     m_trainsList.clear();
 }
 
 
 /**************************************************************************
  * Function name: AddTrackSegment 
  * Description:   create new track segment object and push it to the map of 
- *                segments (key map is segment id)
+ *                segments (map key is segment id)
  * Parameters:    int id - unique track segment id 
  *                int len - track segment length (weight)
  * 
@@ -56,7 +58,7 @@ void CRailRoad::CRailRoad::AddTrackSegment(int id, int len)
  * Function name: AddTrain 
  * Description: creates new train and push it to the list
  * Parameters: int id - unique train id
- *             int from - tarck id train starts from
+ *             int from - tark id train starts from
  *             int to   - track id trains stops at
  * 
  * Return:     void
@@ -69,10 +71,10 @@ void CRailRoad::AddTrain(int id, int from, int to)
 
 /**************************************************************************
  * Function name: AddConnection 
- * Description: creates new train and push it to the list
+ * Description: creates new connection and push it to the list
  * Parameters: int id - unique train id
- *             int from - tarck id train starts from
- *             int to   - track id trains stops at
+ *             int src - connection  to previous segment
+ *             int dest  - connection to next segment
  * 
  * Return:     void
  * History: 19/03/2023 - initial version
@@ -86,18 +88,5 @@ void CRailRoad::AddConnection(int src, int dest)
 
         } 
  }
-
-void CRailRoad::MoveTrain(int trainidx)
-{
-    int nexttracksegment = 0;
-    CTrain * ptrain = m_trainsList[trainidx];
-    if (ptrain != NULL)
-    {
-    
-
-
-    }
-}
-
 
 

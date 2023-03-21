@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<RailRoad xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="RailRoad.xsd">
+
+    <TrackSegments>
+        <TrackSegment id="0" length="1"/>
+        <TrackSegment id="1" length="1"/>
+        <TrackSegment id="2" length="1"/>
+        <TrackSegment id="3" length="10"/>
+        <TrackSegment id="4" length="1"/>
+        <TrackSegment id="5" length="1"/>
+        <TrackSegment id="6" length="1"/>
+        <TrackSegment id="7" length="1"/>
+        <TrackSegment id="8" length="1"/>
+    </TrackSegments>
+
+    <Connections>
+        <Connection source="0" target="1"/>
+        <Connection source="1" target="4"/>
+        <Connection source="2" target="3"/>
+        <Connection source="3" target="4"/>
+        <Connection source="4" target="5"/>
+        <Connection source="4" target="7"/>
+        <Connection source="5" target="6"/>
+        <Connection source="7" target="8"/>       
+    </Connections>
+
+    <Trains>
+        <Train id="1" from="0" to="8"/>   
+        <Train id="2" from="2" to="6"/>           
+    </Trains>
+
+</RailRoad>

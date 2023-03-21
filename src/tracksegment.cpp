@@ -27,11 +27,7 @@ CTrackSegnment::CTrackSegnment(int i, int len) : m_segmentId(i),  m_segmentLengt
 **************************************************************************/
 CTrackSegnment::~CTrackSegnment ()
 {
-    if (!m_tsConnections.empty())
-    {
-        // delete vector content
-        
-    }
+    m_tsConnections.clear();
 }
 
 /**************************************************************************
@@ -48,6 +44,19 @@ void CTrackSegnment::WaitForGreenSignal()
     m_signal.WaitForGreenSignalAndTake();
 }
 
+/**************************************************************************
+ * Function name: WaitForGreenSignal 
+ * Description:   wait for the signal to be freed (GREEN)
+ *                and turn it RED right away
+ * Parameters:    none
+ * 
+ * Return:        void
+ * History: 19/03/2023 - initial version
+**************************************************************************/
+bool CTrackSegnment::TryToTakeGreenSignal()
+{
+    return m_signal.TryToTakeGreenSignal();
+}
 /**************************************************************************
  * Function name: ReleaseSignal 
  * Description:   Releases the signal and change it to GREEN

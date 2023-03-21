@@ -16,7 +16,7 @@
 
 #include "utilities.h"
 #include "railroad.h"
-// #define USE_UNWEIGHTED_GRAPH
+//#define USE_UNWEIGHTED_GRAPH
 //  iPair ==> Integer Pair
 typedef pair<int, int> iPair;
 
@@ -42,7 +42,6 @@ void BuildRailRoad(const string &filename, CRailRoad *pRailRoad)
 {
     // Load XML file
     XMLDocument doc;
-    // string filename = "/home/tanya/projects/railroad/src/railroadlayout1";
     XMLError err = doc.LoadFile(filename.c_str());
     if (err == XML_SUCCESS && pRailRoad != NULL)
     {
@@ -107,10 +106,11 @@ void BuildRailRoad(const string &filename, CRailRoad *pRailRoad)
  **************************************************************************/
 void PrintRailRoad(CRailRoad *pRailRoad)
 { // Print railroad
+    cout << "Rail Road Connections Map \n";
     for (auto it : pRailRoad->GetTrackSegMap())
     {
         CTrackSegnment *segment = it.second;
-        cout << segment->GetTrackSegmentId() << ": ";
+        cout << "Segment " << segment->GetTrackSegmentId() << ": " << "Connected to:";
         for (CTrackSegnment *connection : segment->GetTrackSegmentConnections())
         {
             cout << connection->GetTrackSegmentId() << " ";
@@ -172,14 +172,16 @@ void BuildShortestPathForTrain(CTrain *pTrain, unordered_map<int, CTrackSegnment
         source = pTrain->GetTrainDepartPoint();
         dest = pTrain->GetTrainDestPoint();
         numSegments = trackSegmentMap.size();
-
-        cout << "\nLook for path for train " << pTrain->GetTrainId() << " " << pTrain->GetTrainDepartPoint() << " " << pTrain->GetTrainDestPoint() << endl;
+    
+        cout << "\nCalculating path for train " << pTrain->GetTrainId() << " dept " << pTrain->GetTrainDepartPoint() << " dest " << pTrain->GetTrainDestPoint() << endl;
 
         FindShortestPath(trackSegmentMap, source, dest, numSegments, &pTrain->GetTrainPath());
-        // printing path from source to destination
-        cout << "\nPath is::\n";
-        for (int i = pTrain->GetTrainPathLength() - 1; i >= 0; i--)
+       
+        cout << "\nThe shortest path contains : " <<  pTrain->GetTrainPathLength() << " segments"<< "\n";
+        for (int i = pTrain->GetTrainPathLength() -1; i >=0; i--)
             cout << pTrain->GetTrainPath()[i] << " ";
+        cout << "\n" << "\n";
+       
     }
 }
 /**************************************************************************
@@ -204,6 +206,7 @@ void BuildShortestPathForTrain(CTrain *pTrain, unordered_map<int, CTrackSegnment
 list<CTrackSegnment *> ConvertPathToSegmentList(CRailRoad *p_schema, vector<int> &trainpath)
 {
     list<CTrackSegnment *> shortpathseglist;
+    CTrackSegnment * tmpts = NULL;
     auto &mapsegment = p_schema->GetTrackSegMap();
 
     for (int trainid = trainpath.size() - 1; trainid >= 0; trainid--)
@@ -321,15 +324,16 @@ void FindShortestPath(unordered_map<int, CTrackSegnment *> &adjlist, int s,
 
     // vector path stores the shortest path
     int crawl = dest;
+    path->clear();
     path->push_back(crawl);
     while (pred[crawl] != -1)
     {
         path->push_back(pred[crawl]);
-        crawl = pred[crawl];
+        crawl = pred[crawl];        
     }
     // distance from source is in distance array
-    cout << "Shortest path length is : "
-         << dist[dest];
+    cout << "Shortest path weight is : "
+        << dist[dest] << " for src : " << s << " to dest : " << dest;
 }
 
 /*

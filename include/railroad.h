@@ -67,11 +67,5 @@ private:
     */
     unordered_map<int, CTrain*> m_trainsList;
 
-    //start train 
-    void MoveTrain(int trainid);
-
-
-
-
 };
 #endif// __RAILROAD_H__

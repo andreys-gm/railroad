@@ -32,9 +32,11 @@ CTrain::CTrain(int i, int from, int to) :
  * 
  * Parameters: none
  * History: 19/03/2023 - initial version
+ *          20/02/2023 - free memory
 **************************************************************************/
 CTrain::~CTrain()
 {
+    m_shortPathSegList.clear();
     
 }
 
@@ -52,19 +54,24 @@ void CTrain::RunTrain()
     auto it = m_shortPathSegList.begin(); 
     m_it = it;
 
+    cout << "Running train " << m_trainId << " path: ";
     for(auto& a : m_shortPathSegList)
         cout << a->GetTrackSegmentId() << " ";
     cout << '\n';
 
     while(it != m_shortPathSegList.end())
     {
-        cout << "train: " << m_trainId << " before step at " << (*m_it)->GetTrackSegmentId() << endl;
-
+        cout << "train: " << m_trainId << " at " << (*m_it)->GetTrackSegmentId() << endl;
+                  
         it++;
         if (it != m_shortPathSegList.end())
         {
             auto* ts = (*it);
-            ts->WaitForGreenSignal();
+            while(!ts->TryToTakeGreenSignal())
+            {
+               cout << "train: " << m_trainId << " waiting on RED at " << ts->GetTrackSegmentId() << endl;
+               std::this_thread::sleep_for(10ms);  
+            };
             (*m_it)->ReleaseSignal();
             m_it = it;
             cout << "train: " << m_trainId << " at " << (*m_it)->GetTrackSegmentId() << endl;
@@ -90,10 +97,11 @@ void CTrain::RunTrain()
  * 
  * Return:        void
  * History: 19/03/2023 - initial version
+ *          20/03/203 -  member name changes
 **************************************************************************/
 void CTrain::StartEngine()
 {
-    thread_ = std::thread(CTrain::s_RunTrain, this);
+    m_trainThread = std::thread(CTrain::s_RunTrain, this);
 }
 
 /**************************************************************************
@@ -103,8 +111,9 @@ void CTrain::StartEngine()
  * 
  * Return:        void
  * History: 19/03/2023 - initial version
+ *          20/03/203 -  member name changes
 **************************************************************************/
 void CTrain::WaitForTrainArrival()
-{
-    thread_.join();
+{  
+    m_trainThread.join();    
 }

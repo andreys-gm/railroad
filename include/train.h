@@ -44,7 +44,7 @@ private:
 
     /*train tread
     */
-    std::thread thread_;
+    std::thread m_trainThread;
    
     
 public: 
@@ -69,10 +69,14 @@ public:
     */
     void SetTrainShortPathSegList(list<CTrackSegnment*> seglist){ m_shortPathSegList = seglist;};
     
-    // 
+    /* train start moving
+    */
     void RunTrain();
-    //create train thread
+    
+    /*create train thread
+    */
     void StartEngine();
+    
     void WaitForTrainArrival();
 
 protected:

@@ -11,6 +11,8 @@
 #include <thread>
 #include <atomic>
 
+using namespace std;
+
 /* enumerators
 */
 enum class ESignalState
@@ -40,13 +42,20 @@ public:
     */
     bool WaitForGreenSignalAndTake();
 
+    /* check if the signal is GREEN
+       if yes turns it RED
+       meaning that the segment can be 
+       used by the caller,
+       exit otherwise
+    */
+    bool TryToTakeGreenSignal();
+
     /* release the signal (switch it to GREEN)
     */
     bool ReleaseSignal();
 
 private:
     // attributes
-    // std::atomic<ESignalState> state_;
     /* signal state 
     */
     ESignalState state_ = ESignalState::Red;

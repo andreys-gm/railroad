@@ -56,6 +56,9 @@ public:
     /*train should wait for green signal before enetering the segment
     */
     void WaitForGreenSignal();
+    /*try to take green signal before enetering the segment
+    */
+    bool TryToTakeGreenSignal();
 
     /*train releases the signal 
     */

@@ -1,3 +1,15 @@
+/*--------------------------------------------------------------------------
+* File name:     TrainCtrlSim.cpp 
+* Description:   Train control simulation implementation 
+*                The application builds rail road model defined 
+*                in xml file
+*                It builds rail segments, connections and train 
+*                objects
+*                
+*
+* Author:        Tanya Shkinev                                                     
+*---------------------------------------------------------------------------
+*/
 #include <stdlib.h>
 #include <unistd.h> 
 
