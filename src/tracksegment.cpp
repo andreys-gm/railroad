@@ -44,7 +44,7 @@ CTrackSegnment::~CTrackSegnment ()
 **************************************************************************/
 void CTrackSegnment::WaitForGreenSignal(int stepIndex)
 {
-    if (stepIndex < m_signals.size())
+    if (stepIndex < m_signals.size() && stepIndex >= 0)
         m_signals[stepIndex].WaitForGreenSignalAndTake();    
 }
 
@@ -60,7 +60,7 @@ void CTrackSegnment::WaitForGreenSignal(int stepIndex)
 **************************************************************************/
 bool CTrackSegnment::TryToTakeGreenSignal(int  stepIndex)
 {
-    if (stepIndex < m_signals.size())    
+    if (stepIndex < m_signals.size() && stepIndex >= 0)   
         return m_signals[stepIndex].TryToTakeGreenSignal();
     else
         return false;
@@ -80,7 +80,7 @@ bool CTrackSegnment::TryToTakeGreenSignal(int  stepIndex)
 **************************************************************************/
 void CTrackSegnment::ReleaseSignal(int stepIndex)
 {
-    if (stepIndex < m_signals.size())
+    if (stepIndex < m_signals.size() && stepIndex >= 0)
       m_signals[stepIndex].ReleaseSignal();
      
 } 
@@ -123,9 +123,9 @@ EMoveStatus CTrackSegnment::MoveTrain(ETrainDirection direction, int trainId, in
     if(it == m_trainRecords.end())
     {
         auto current = direction == ETrainDirection::Forward ? 0 : m_segmentLength + 1;
-        auto train_step = direction == ETrainDirection::Forward ? 1 : -1;
+        auto trainStep = direction == ETrainDirection::Forward ? 1 : -1;
         auto stop = direction == ETrainDirection::Forward ? m_segmentLength : 1;
-        m_trainRecords[trainId] = {direction, train_step, stop, current};
+        m_trainRecords[trainId] = {direction, trainStep, stop, current};
         
         rec = m_trainRecords[trainId];
     }
@@ -133,19 +133,19 @@ EMoveStatus CTrackSegnment::MoveTrain(ETrainDirection direction, int trainId, in
         rec = it->second;
     
     // check the status of next section
-    auto next_step = rec.m_current + rec.m_trainStep;
+    auto nextStep = rec.m_current + rec.m_trainStep;
 
     // check if we can move there
-    if(TryToTakeGreenSignal(next_step - 1))
+    if(TryToTakeGreenSignal(nextStep - 1))
     {
         // took the next sema, move there
         if(rec.m_current != 0 && rec.m_current != m_segmentLength + 1)
             ReleaseSignal(rec.m_current - 1);
 
-        rec.m_current = next_step;
+        rec.m_current = nextStep;
         m_trainRecords[trainId] = rec;
 
-        moveStatus = next_step == rec.m_stop ? EMoveStatus::Finished : EMoveStatus::Moved;
+        moveStatus = nextStep == rec.m_stop ? EMoveStatus::Finished : EMoveStatus::Moved;
         atStep = rec.m_current - 1;
     }
     
@@ -174,15 +174,9 @@ bool CTrackSegnment::ReleaseSection(int trainId)
 
     auto stepIndex = it->second.m_current - 1;
     m_trainRecords.erase(it);
-    if (stepIndex < m_signals.size())
-    {
-        ReleaseSignal(stepIndex);
-        return true;
-    }
-    else
-        return false;
+    ReleaseSignal(stepIndex);
 
-    
+    return (stepIndex < m_signals.size() && stepIndex >= 0);
 }
 
  

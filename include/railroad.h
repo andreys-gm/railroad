@@ -48,7 +48,17 @@ public:
      
     /* returns track segment from map 
     */
-    CTrackSegnment * GetTrackSegment(int segmentId) { return m_trackSegmentsMap[segmentId];};       
+    CTrackSegnment * GetTrackSegment(int segmentId) 
+    {
+        auto it = m_trackSegmentsMap.find(segmentId);
+        if(it == m_trackSegmentsMap.end())
+        {
+            cout << "CrailRoad::GetTrackSegment: element " <<  segmentId << " does not exist" << endl;
+            exit(EXIT_FAILURE);
+        }
+        
+        return m_trackSegmentsMap[segmentId];
+    };       
     
     /* get/set private attributes
     */
