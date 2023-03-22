@@ -27,17 +27,17 @@ bool CTrainSignal::WaitForGreenSignalAndTake()
 
     // wait for the signal to be freed (green)
     // and turn it red right away
-    signal_.lock();
+    m_signal.lock();
 
     // lock the object before modifying attributes
     lock_guard<std::mutex> guard(cs_);
 
     // keep thread id
-    owners_thread_id_ = this_thread::get_id();
+    ownerrsThreadId = this_thread::get_id();
 
     // we have taken the lock,
     // change the color to red
-    state_ = ESignalState::Red;
+    m_state = ESignalState::Red;
 
     return true;
 }
@@ -58,7 +58,7 @@ bool CTrainSignal::TryToTakeGreenSignal()
 {
     // wait for the signal to be freed (green)
     // and turn it red right away
-    auto green = signal_.try_lock();
+    auto green = m_signal.try_lock();
 
     if(green)
     {
@@ -66,11 +66,11 @@ bool CTrainSignal::TryToTakeGreenSignal()
         lock_guard<mutex> guard(cs_);
 
         // keep thread id
-        owners_thread_id_ = this_thread::get_id();
+        ownerrsThreadId = this_thread::get_id();
 
         // we have taken the lock,
         // change the color to red
-        state_ = ESignalState::Red;
+        m_state = ESignalState::Red;
     }
     
     return green;    
@@ -88,16 +88,16 @@ bool CTrainSignal::ReleaseSignal()
 {
     std::lock_guard<std::mutex> guard(cs_);
 
-    if (state_ == ESignalState::Green)
+    if (m_state == ESignalState::Green)
         return true;
 
-    if (this_thread::get_id() != owners_thread_id_)
+    if (this_thread::get_id() != ownerrsThreadId)
         return false;
 
-    signal_.unlock();
+    m_signal.unlock();
 
     // Signal is released,
-    state_ = ESignalState::Green;
+    m_state = ESignalState::Green;
 
     return true;
 }

@@ -77,44 +77,57 @@ void CTrain::RunTrain()
             std::lock_guard<std::mutex> guard(m_coutMutex);
             cout << "train: " << m_trainId << " at " << (*m_it)->GetTrackSegmentId() << endl;
         }
-        // read the length of current segment 
-        segment_length = (*it)->GetTrackSegmentLength();
-        while  (segment_length > SEGMENT_LENGTH_UNIT )
-        {
-            //train doesn't change the segment, continues run till
-            //it reaches segment end
-            segment_length--;
-            // sleep here for a bit to give other trains a chance
-            std::this_thread::sleep_for(10ms); 
-            {
-            std::lock_guard<std::mutex> guard(m_coutMutex);
-            cout << "train: " << m_trainId << " continues at " << (*m_it)->GetTrackSegmentId() << endl;
-            }
-        }
-        
+       
         it++;
         if (it != m_shortPathSegList.end())
         {
-            auto* ts = (*it);
-            while(!ts->TryToTakeGreenSignal())
+            // new segment, run until finished
+            auto ts = (*it);
+            auto move_status = EMoveStatus::Waiting;
+            
+            // loop until finished the segment
+            auto step = 0;
+            do
             {
+                move_status = ts->MoveTrain(m_direction, m_trainId, step);
+
+                // loop here if we got red light
+                while(EMoveStatus::Waiting == move_status)
+                {
+                    {
+                        std::lock_guard<std::mutex> guard(m_coutMutex);
+                        cout << "train: " << m_trainId << " waiting on RED for " << ts->GetTrackSegmentId() << " step " << step << endl;
+                    }
+
+                    std::this_thread::sleep_for(10ms);  
+                    move_status = ts->MoveTrain(m_direction, m_trainId, step);
+                };
+
+
                 {
                     std::lock_guard<std::mutex> guard(m_coutMutex);
-                    cout << "train: " << m_trainId << " waiting on RED for " << ts->GetTrackSegmentId() << endl;
+                    cout << "train: " << m_trainId << " segment " << ts->GetTrackSegmentId() << " step " << step << endl;
                 }
-               std::this_thread::sleep_for(10ms);  
-            };
-            (*m_it)->ReleaseSignal();
+
+                std::this_thread::sleep_for(10ms); 
+
+            }while(EMoveStatus::Finished != move_status);
+
+            // release the prev section
+            (*m_it)->ReleaseSection(m_trainId);
+
             m_it = it;
-            {
+            /*{
                 std::lock_guard<std::mutex> guard(m_coutMutex);
                 cout << "train: " << m_trainId << " moving to " << (*m_it)->GetTrackSegmentId() << endl;
-            }
+            }*/
         }
         else
         {
-            (*m_it)->ReleaseSignal();
+            // release the section, we have finished the route
+            (*m_it)->ReleaseSection(m_trainId);
         }
+
         
         // sleep here for a bit to give other trains a chance
         std::this_thread::sleep_for(10ms); 

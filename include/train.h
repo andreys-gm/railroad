@@ -8,6 +8,7 @@
 #define __TRAIN_H__
 
 #include <list>
+#include <vector>
 
 #include "tracksegment.h"
 

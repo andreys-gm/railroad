@@ -27,13 +27,13 @@ class CTrainSignal
 public:
     /* constructor
     */
-    CTrainSignal(){state_ = ESignalState::Red;};
+    CTrainSignal(){m_state = ESignalState::Red;};
     /* destructor
     */
     virtual ~CTrainSignal(){}
 
     // read current state
-    ESignalState GetState() const {return state_;}
+    ESignalState GetState() const {return m_state;}
     
     /* wait for the signal to become GREEN
        and turns it RED
@@ -58,12 +58,12 @@ private:
     // attributes
     /* signal state 
     */
-    ESignalState state_ = ESignalState::Red;
+    ESignalState m_state = ESignalState::Red;
 
     // lock
-    std::mutex signal_;
+    std::mutex m_signal;
     std::mutex cs_;
-    std::thread::id owners_thread_id_;
+    std::thread::id ownerrsThreadId;
 
 };
 
