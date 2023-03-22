@@ -44,14 +44,15 @@ CTrackSegnment::~CTrackSegnment ()
 **************************************************************************/
 void CTrackSegnment::WaitForGreenSignal(int stepIndex)
 {
-    m_signals[stepIndex].WaitForGreenSignalAndTake();
+    if (stepIndex < m_signals.size())
+        m_signals[stepIndex].WaitForGreenSignalAndTake();    
 }
 
 /**************************************************************************
  * Function name: WaitForGreenSignal 
  * Description:   wait for the signal to be freed (GREEN)
  *                and turn it RED right away
- * Parameters:    int index - step in long section
+ * Parameters:    int stepIndex - step in multi step segment
  * 
  * Return:        void
  * History: 19/03/2023 - initial version
@@ -59,13 +60,18 @@ void CTrackSegnment::WaitForGreenSignal(int stepIndex)
 **************************************************************************/
 bool CTrackSegnment::TryToTakeGreenSignal(int  stepIndex)
 {
-    return m_signals[stepIndex].TryToTakeGreenSignal();
+    if (stepIndex < m_signals.size())    
+        return m_signals[stepIndex].TryToTakeGreenSignal();
+    else
+        return false;
+   
 }
-/**************************************************************************
+
+/* /**************************************************************************
  * Function name: ReleaseSignal 
  * Description:   Releases the signal and change it to GREEN
  *                and turn it red right away
- * Parameters:    int index - step in long section
+ * Parameters:     int stepIndex - step in multi step segment
  * 
  * Return:        void
  * History: 19/03/2023 - initial version
@@ -74,8 +80,10 @@ bool CTrackSegnment::TryToTakeGreenSignal(int  stepIndex)
 **************************************************************************/
 void CTrackSegnment::ReleaseSignal(int stepIndex)
 {
-    m_signals[stepIndex].ReleaseSignal();
-}
+    if (stepIndex < m_signals.size())
+      m_signals[stepIndex].ReleaseSignal();
+     
+} 
 
 
 /**************************************************************************
@@ -148,7 +156,7 @@ EMoveStatus CTrackSegnment::MoveTrain(ETrainDirection direction, int trainId, in
  * Function name: ReleaseSection 
  * Description:  Function that releases the segment when a train left it
  * 
- * Parameters:    none
+ * Parameters:    int TrainId
  * 
  * Return:        status of the move
  * History: 22/03/2023 - initial version
@@ -166,7 +174,15 @@ bool CTrackSegnment::ReleaseSection(int trainId)
 
     auto stepIndex = it->second.m_current - 1;
     m_trainRecords.erase(it);
+    if (stepIndex < m_signals.size())
+    {
+        ReleaseSignal(stepIndex);
+        return true;
+    }
+    else
+        return false;
 
-    ReleaseSignal(stepIndex);
-    return true;
+    
 }
+
+ 
