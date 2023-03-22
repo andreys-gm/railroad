@@ -13,7 +13,7 @@
 
 using namespace std;
 
-
+#define SEGMENT_LENGTH_UNIT  1
 std::mutex CTrain::m_coutMutex;
 /**************************************************************************
  * Constructor is called RailRoad object
@@ -53,6 +53,7 @@ CTrain::~CTrain()
 **************************************************************************/
 void CTrain::RunTrain()
 {
+    int segment_length = 0;
     auto it = m_shortPathSegList.begin(); 
     m_it = it;
 
@@ -71,7 +72,21 @@ void CTrain::RunTrain()
             std::lock_guard<std::mutex> guard(m_coutMutex);
             cout << "train: " << m_trainId << " at " << (*m_it)->GetTrackSegmentId() << endl;
         }
-                  
+        // read the length of current segment 
+        segment_length = (*it)->GetTrackSegmentLength();
+        while  (segment_length > SEGMENT_LENGTH_UNIT )
+        {
+            //train doesn't change the segment, continues run till
+            //it reaches segment end
+            segment_length--;
+            // sleep here for a bit to give other trains a chance
+            std::this_thread::sleep_for(10ms); 
+            {
+            std::lock_guard<std::mutex> guard(m_coutMutex);
+            cout << "train: " << m_trainId << " continues at " << (*m_it)->GetTrackSegmentId() << endl;
+            }
+        }
+        
         it++;
         if (it != m_shortPathSegList.end())
         {

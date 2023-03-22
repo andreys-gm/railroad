@@ -32,7 +32,7 @@ using namespace std;
 int main(int argc, char* argv[])
 {
     int opt = 0;
-    std::string filename = "../resources/railroadlayout1.xml";
+    std::string filename = "../resources/railroadlayout4.xml";
     
     while ((opt = getopt(argc, argv, "f:")) != -1) {
         switch (opt) {
