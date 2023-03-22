@@ -13,6 +13,15 @@
 
 using namespace std;
 
+/* enumerators
+*/
+enum class ETrainDirection
+{
+    Forward,
+    Backward
+};
+
+
 class CTrain {
 private:
     /* uinque train id 
@@ -48,6 +57,10 @@ private:
 
     static std::mutex m_coutMutex;
    
+    /*  
+    */
+    ETrainDirection m_direction = ETrainDirection::Forward;
+
     
 public: 
     CTrain(int i, int from, int to);
@@ -61,8 +74,8 @@ public:
     
     /* returns train path (list of segments IDs)
     */
-    vector<int> & GetTrainPath(){ return m_trainPath;};
-
+    const vector<int> & GetTrainPath(){ return m_trainPath;};
+    void SetTrainPath(vector<int>& vec){ m_trainPath = vec; }
     /* returns number of segments on the train path
     */
     int GetTrainPathLength(){ return m_trainPath.size();};
@@ -80,6 +93,8 @@ public:
     void StartEngine();
     
     void WaitForTrainArrival();
+
+    void PrintTrainPath();
 
 protected:
     static void s_RunTrain(CTrain* train)

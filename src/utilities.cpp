@@ -96,29 +96,7 @@ void BuildRailRoad(const string &filename, CRailRoad *pRailRoad)
         cout << "can't load xml file " << filename <<" TinyXML error: " << err << endl;
 }
 
-/**************************************************************************
- * Function name: PrintRailRoad
- * Description:   Print layout of rail road model
- * Parameters:    CRailRoad * pRailRoad - pointer to RailRoad object
- *
- * Return:        void
- * History: 19/03/2023 - initial version
- **************************************************************************/
-void PrintRailRoad(CRailRoad *pRailRoad)
-{ // Print railroad
-    cout << "Rail Road Connections Map \n";
-    for (auto it : pRailRoad->GetTrackSegMap())
-    {
-        CTrackSegnment *segment = it.second;
-        cout << "Segment " << segment->GetTrackSegmentId() << ": " << "Connected to:";
-        for (CTrackSegnment *connection : segment->GetTrackSegmentConnections())
-        {
-            cout << connection->GetTrackSegmentId() << " ";
-        }
-        cout << endl;
-    }
-    return;
-}
+
 /**************************************************************************
  * Function name: CalculateShortestPathForAllTrains
  *
@@ -139,10 +117,11 @@ void CalculateShortestPathForAllTrains(CRailRoad *prailroad)
         auto *train = it->second;
 
         // build shortest path vector (contains only segments indexes)
-        BuildShortestPathForTrain(train, prailroad->GetTrackSegMap());
+        BuildShortestPathForTrain(train, prailroad);
 
         // build list of segnments objects for train shortest part
         shortPathSegList = ConvertPathToSegmentList(prailroad, train->GetTrainPath());
+
         // atttach the list to the train
         train->SetTrainShortPathSegList(shortPathSegList);
     }
@@ -156,14 +135,13 @@ void CalculateShortestPathForAllTrains(CRailRoad *prailroad)
  *
  *
  * Parameters:    CTrain * pTrain - pointer to train object
- *                unordered_map<int, CTrackSegnment*> & trackSegmentMap
- *                      - segment map of the current model
+ *                CRailRoad * pSchema - pointer tocomplete rail road map 
  *
  *
  * Return:        void
  * History: 19/03/2023 - initial version
  **************************************************************************/
-void BuildShortestPathForTrain(CTrain *pTrain, unordered_map<int, CTrackSegnment *> &trackSegmentMap)
+void BuildShortestPathForTrain(CTrain *pTrain, CRailRoad * pSchema)
 {
 
     int source, dest, numSegments;
@@ -171,17 +149,14 @@ void BuildShortestPathForTrain(CTrain *pTrain, unordered_map<int, CTrackSegnment
     {
         source = pTrain->GetTrainDepartPoint();
         dest = pTrain->GetTrainDestPoint();
-        numSegments = trackSegmentMap.size();
+        numSegments = pSchema->GetSegmentsNumber();
     
         cout << "\nCalculating path for train " << pTrain->GetTrainId() << " dept " << pTrain->GetTrainDepartPoint() << " dest " << pTrain->GetTrainDestPoint() << endl;
 
-        FindShortestPath(trackSegmentMap, source, dest, numSegments, &pTrain->GetTrainPath());
-       
-        cout << "\nThe shortest path contains : " <<  pTrain->GetTrainPathLength() << " segments"<< "\n";
-        for (int i = pTrain->GetTrainPathLength() -1; i >=0; i--)
-            cout << pTrain->GetTrainPath()[i] << " ";
-        cout << "\n" << "\n";
-       
+        vector<int> train_path;
+        FindShortestPath(pSchema, source, dest, numSegments, &train_path);
+        pTrain->SetTrainPath(train_path);
+        pTrain->PrintTrainPath();       
     }
 }
 /**************************************************************************
@@ -203,16 +178,14 @@ void BuildShortestPathForTrain(CTrain *pTrain, unordered_map<int, CTrackSegnment
  *
  * History: 19/03/2023 - initial version
 **************************************************************************/
-list<CTrackSegnment *> ConvertPathToSegmentList(CRailRoad *p_schema, vector<int> &trainpath)
+list<CTrackSegnment *> ConvertPathToSegmentList(CRailRoad *p_schema, const vector<int> &trainpath)
 {
     list<CTrackSegnment *> shortpathseglist;
-    CTrackSegnment * tmpts = NULL;
-    auto &mapsegment = p_schema->GetTrackSegMap();
 
     for (int trainid = trainpath.size() - 1; trainid >= 0; trainid--)
     {
         int segment = trainpath[trainid];
-        shortpathseglist.push_back(mapsegment[segment]);
+        shortpathseglist.push_back(p_schema->GetTrackSegment(segment));
     }
     return shortpathseglist;
 }
@@ -225,8 +198,7 @@ list<CTrackSegnment *> ConvertPathToSegmentList(CRailRoad *p_schema, vector<int>
  *                in resultant array (dist[])
  *
 
- * Parameters:    unordered_map<int, CTrackSegnment*>& adjlist - model
- *                adjusent list
+ * Parameters:    RailRoad * pSchema - pointer to complete rail road model
  *                int src - source
  *                int dest - destination
  *                int v - number of vertices (in our case number of rack segments)
@@ -240,7 +212,7 @@ list<CTrackSegnment *> ConvertPathToSegmentList(CRailRoad *p_schema, vector<int>
  *
  * History: 19/03/2023 - initial version
 **************************************************************************/
-bool BFS_UnweightedGraph(unordered_map<int, CTrackSegnment *> &adjlist, int src, int dest, int v,
+bool BFS_UnweightedGraph(CRailRoad * pSchema, int src, int dest, int v,
                          int pred[], int dist[])
 {
     // a queue to maintain queue of vertices whose
@@ -276,7 +248,7 @@ bool BFS_UnweightedGraph(unordered_map<int, CTrackSegnment *> &adjlist, int src,
         int u = queue.front();
         queue.pop_front();
 
-        CTrackSegnment *segment = adjlist[u];
+        CTrackSegnment *segment = pSchema->GetTrackSegment(u);
         for (CTrackSegnment *connection : segment->GetTrackSegmentConnections())
         {
             if (visited[connection->GetTrackSegmentId()] == false)
@@ -299,7 +271,7 @@ bool BFS_UnweightedGraph(unordered_map<int, CTrackSegnment *> &adjlist, int src,
 
 // utility function to print the shortest distance
 // between source and destination
-void FindShortestPath(unordered_map<int, CTrackSegnment *> &adjlist, int s,
+void FindShortestPath(CRailRoad * pSchema, int s,
                       int dest, int v, vector<int> *path)
 {
     // predecessor[i] array stores predecessor of
@@ -307,14 +279,14 @@ void FindShortestPath(unordered_map<int, CTrackSegnment *> &adjlist, int s,
     // from s
     int pred[v], dist[v];
 #ifdef USE_UNWEIGHTED_GRAPH
-    if (BFS_UnweightedGraph(adjlist, s, dest, v, pred, dist) == false)
+    if (BFS_UnweightedGraph(pSchema, s, dest, v, pred, dist) == false)
     {
         cout << "Given source and destination"
              << " are not connected";
         return;
     }
 #else // USE_WEIGHTED_GRAPH
-    if (Dijkstra_WeightedGraph(adjlist, s, dest, v, pred, dist) == false)
+    if (Dijkstra_WeightedGraph(pSchema, s, dest, v, pred, dist) == false)
     {
         cout << "Given source and destination"
              << " are not connected";
@@ -344,8 +316,7 @@ void FindShortestPath(unordered_map<int, CTrackSegnment *> &adjlist, int s,
  *                in resultant array (dist[])
  *
 
- * Parameters:    unordered_map<int, CTrackSegnment*>& adjlist - model
- *                adjusent list
+ * Parameters:    CRailRoad * p_schema - pointer to complete rail road model
  *                int src - source
  *                int dest - destination
  *                int v - number of vertices (in our case number of rack segments)
@@ -359,7 +330,7 @@ void FindShortestPath(unordered_map<int, CTrackSegnment *> &adjlist, int s,
  *
  * History: 19/03/2023 - initial version
 **************************************************************************/
-bool Dijkstra_WeightedGraph(unordered_map<int, CTrackSegnment *> &adjlist, int src, int dest, int v,
+bool Dijkstra_WeightedGraph(CRailRoad * p_schema, int src, int dest, int v,
                             int pred[], int dist[])
 {
     // Create a priority queue to store vertices that
@@ -395,7 +366,7 @@ bool Dijkstra_WeightedGraph(unordered_map<int, CTrackSegnment *> &adjlist, int s
         int u = pq.top().second;
         pq.pop();
 
-        CTrackSegnment *segment = adjlist[u];
+        CTrackSegnment *segment = p_schema->GetTrackSegment(u);
         for (CTrackSegnment *connection : segment->GetTrackSegmentConnections())
         {
             // Get vertex label and weight of current

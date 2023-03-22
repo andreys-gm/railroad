@@ -51,7 +51,9 @@ public:
     */
     int GetTrackSegmentLength(){ return m_segmentLength; }
     int GetTrackSegmentId(){ return m_segmentId; }
-    vector<CTrackSegnment*> & GetTrackSegmentConnections(){return m_tsConnections;};
+    const vector<CTrackSegnment*> & GetTrackSegmentConnections(){return m_tsConnections;};
+    void AddConnection(CTrackSegnment * connect ){ m_tsConnections.push_back(connect);};
+
 
     /*train should wait for green signal before enetering the segment
     */

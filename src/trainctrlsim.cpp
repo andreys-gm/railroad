@@ -47,7 +47,7 @@ int main(int argc, char* argv[])
     if (p_schema != NULL)
     {
         BuildRailRoad(filename, p_schema);
-        PrintRailRoad(p_schema);
+        p_schema->PrintRailRoad();
         CalculateShortestPathForAllTrains(p_schema);
         auto trainlist = p_schema->GetTrainList();
 

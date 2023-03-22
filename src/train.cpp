@@ -27,7 +27,12 @@ std::mutex CTrain::m_coutMutex;
 CTrain::CTrain(int i, int from, int to) : 
     m_trainId(i) , m_departurePoint(from) , m_destinationPoint (to) {
         m_currentPoint = m_departurePoint; 
-        m_it =  m_shortPathSegList.begin();       
+        m_it =  m_shortPathSegList.begin();    
+        if (from <= to)  
+            m_direction = ETrainDirection::Forward;
+        else
+            m_direction = ETrainDirection::Backward;
+
 }
 /**************************************************************************
  * Destructor
@@ -150,4 +155,21 @@ void CTrain::StartEngine()
 void CTrain::WaitForTrainArrival()
 {  
     m_trainThread.join();    
+}
+
+
+/**************************************************************************
+ * Function name: PrintTrainPath 
+ * Description:   Prints train's path
+ * Parameters:    none
+ * 
+ * Return:        void
+ * History: 22/03/2023 - initial version
+**************************************************************************/
+void CTrain::PrintTrainPath()
+{
+    cout << "\nThe shortest path contains : " <<  m_trainPath.size() << " segments"<< "\n";
+    for (int i = m_trainPath.size() - 1; i >=0; i--)
+        cout << m_trainPath[i] << " ";
+    cout << "\n" << "\n";
 }

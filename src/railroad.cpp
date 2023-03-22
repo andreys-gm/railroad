@@ -83,9 +83,32 @@ void CRailRoad::AddConnection(int src, int dest)
 {
         if (m_trackSegmentsMap.find(src) != m_trackSegmentsMap.end() && 
         m_trackSegmentsMap.find(dest) != m_trackSegmentsMap.end()) {
-             m_trackSegmentsMap[src]->GetTrackSegmentConnections().push_back(m_trackSegmentsMap[dest]);
-            m_trackSegmentsMap[dest]->GetTrackSegmentConnections().push_back(m_trackSegmentsMap[src]);
+             m_trackSegmentsMap[src]->AddConnection(m_trackSegmentsMap[dest]);
+            m_trackSegmentsMap[dest]->AddConnection(m_trackSegmentsMap[src]);
 
         } 
  }
-  
+
+  /**************************************************************************
+ * Function name: PrintRailRoad
+ * Description:   Print layout of rail road model
+ * Parameters:    CRailRoad * pRailRoad - pointer to RailRoad object
+ *
+ * Return:        void
+ * History: 19/03/2023 - initial version
+ **************************************************************************/
+void CRailRoad::PrintRailRoad()
+{ // Print railroad
+    cout << "Rail Road Connections Map \n";
+    for (auto it : m_trackSegmentsMap)
+    {
+        CTrackSegnment *segment = it.second;
+        cout << "Segment " << segment->GetTrackSegmentId() << ": " << "Connected to:";
+        for (CTrackSegnment *connection : segment->GetTrackSegmentConnections())
+        {
+            cout << connection->GetTrackSegmentId() << " ";
+        }
+        cout << endl;
+    }
+    return;
+}

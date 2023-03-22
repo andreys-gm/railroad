@@ -46,10 +46,13 @@ public:
     */
     void AddConnection(int src, int dest);       
      
+    /* returns track segment from map 
+    */
+    CTrackSegnment * GetTrackSegment(int segmentId) { return m_trackSegmentsMap[segmentId];};       
+    
     /* get/set private attributes
     */
-    unordered_map<int, CTrackSegnment*> & GetTrackSegMap(){return m_trackSegmentsMap;};
-    unordered_map<int, CTrain*>& GetTrainList(){return m_trainsList;};
+    const unordered_map<int, CTrain*>& GetTrainList(){return m_trainsList;};
     
     /* returns number of trains
     */
@@ -57,6 +60,9 @@ public:
     /* returns number of segments 
     */
     uint GetSegmentsNumber(){ return m_trackSegmentsMap.size();};
+    /* Prints map of track segments
+    */
+    void PrintRailRoad();
 
 private:
     /* track segment map  - conains all segements inlcuded into railroad model
