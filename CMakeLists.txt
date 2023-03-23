@@ -12,8 +12,6 @@ add_executable(${PROJECT_NAME} ${Project_SRC})
 
 target_link_directories(${PROJECT_NAME} PUBLIC "/usr/local/lib")
 
-# add_executable(xmlparser /home/tanya/projects/railroad/src)
-# target_include_directories(xmlparser PRIVATE /usr/local/lib/tinyxml2)
 target_link_libraries(${PROJECT_NAME} PRIVATE tinyxml2)
 target_link_libraries(${PROJECT_NAME} PRIVATE pthread)
 
